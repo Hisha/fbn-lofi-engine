@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use crate::audio::{AudioManager, AudioStream};
-use crate::backend::JobProcessor;
+use crate::backend::musicgen_job_processor::MusicGenJobProcessor;
 
 pub struct RunTerminalOptions {
     pub init_prompt: String,
