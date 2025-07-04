@@ -121,9 +121,9 @@ impl Args {
         if self.secs < 1 {
             return Err(anyhow!("--secs must > 0"));
         }
-        if self.secs > 30 {
-            return Err(anyhow!("--secs must <= 30"));
-        }
+        //if self.secs > 30 {
+        //    return Err(anyhow!("--secs must <= 30"));
+        //}
         if self.no_interactive && self.prompt.is_empty() {
             return Err(anyhow!(
                 "A prompt must be provided when not in interactive mode"
