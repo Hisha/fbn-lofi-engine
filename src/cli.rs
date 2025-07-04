@@ -189,6 +189,13 @@ use crate::backend::musicgen_job_processor::MusicGenJobProcessor;
 let audio_manager = AudioManager::default();
 let job_processor = MusicGenJobProcessor::new(Arc::new(musicgen_models));
 
+if args.infinite {
+    println!(
+        "[INFINITE MODE ENABLED] Will generate up to {} seconds in chunks of {}s with {}s overlap.",
+        args.secs, args.chunksize, args.overlap
+    );
+}
+        
 run_terminal_loop(
     root,
     job_processor,
