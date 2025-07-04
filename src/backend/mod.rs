@@ -7,7 +7,7 @@ mod audio_generation_backend;
 mod audio_generation_fanout;
 mod music_gpt_chat;
 mod music_gpt_ws_handler;
-mod musicgen_job_processor;
+pub mod musicgen_job_processor;
 mod server;
 mod ws_handler;
 
