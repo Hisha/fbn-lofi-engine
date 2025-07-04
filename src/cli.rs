@@ -180,17 +180,21 @@ pub async fn cli() -> anyhow::Result<()> {
         )
         .await
     } else {
-        run_terminal_loop(
-            root,
-            musicgen_models,
-            RunTerminalOptions {
-                init_prompt: args.prompt,
-                init_secs: args.secs,
-                init_output: args.output,
-                no_playback: args.no_playback,
-                no_interactive: args.no_interactive,
-            },
-        )
-        .await
+        let job_processor = MusicGenJobProcessor::new(musicgen_models.clone(), audio_manager.clone());
+
+run_terminal_loop(
+    root,
+    job_processor,
+    RunTerminalOptions {
+        init_prompt: prompt,
+        init_secs: secs,
+        init_output: output,
+        no_playback,
+        no_interactive,
+        infinite,
+        chunksize,
+        overlap,
+    },
+).await?;
     }
 }
