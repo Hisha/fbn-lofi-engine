@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokenizers::Tokenizer;
 
-use crate::backend::JobProcessor;
+use crate::backend::audio_generation_backend::JobProcessor;
 use crate::cli::{Model, INPUT_IDS_BATCH_PER_SECOND};
 use crate::musicgen::{
     MusicGenAudioEncodec, MusicGenDecoder, MusicGenMergedDecoder, MusicGenSplitDecoder,
