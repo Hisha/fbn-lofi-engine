@@ -124,7 +124,7 @@ pub async fn run_terminal_loop<T: JobProcessor>(
             output += ".wav";
         }
 
-        let bytes = audio_player.to_wav(samples)?;
+        let bytes = audio_player.to_wav(samples.clone())?;
         tokio::fs::write(&output, bytes).await?;
 
         prompt = "".into();
