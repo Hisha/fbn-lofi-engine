@@ -166,19 +166,20 @@ pub async fn cli() -> anyhow::Result<()> {
     .await?;
 
     if args.prompt.is_empty() {
-        run_web_server(
-            root,
-            storage,
-            musicgen_models,
-            RunWebServerOptions {
-                name: args.model.to_string(),
-                device: device.to_string(),
-                port: args.ui_port,
-                auto_open: true,
-                expose: args.ui_expose,
-            },
-        )
-        .await
+        let job_processor = MusicGenJobProcessor::new(Arc::new(musicgen_models));
+
+run_web_server(
+    root,
+    storage,
+    job_processor,
+    RunWebServerOptions {
+        name: args.model.to_string(),
+        device: device.to_string(),
+        port: args.ui_port,
+        auto_open: !args.ui_no_open,
+        expose: args.ui_expose,
+    },
+).await
     } else {
         use std::sync::Arc;
 use crate::audio::AudioManager;
@@ -188,7 +189,6 @@ let audio_manager = AudioManager::default();
 let job_processor = MusicGenJobProcessor::new(Arc::new(musicgen_models));
 
 run_terminal_loop(
-    root,
     job_processor,
     RunTerminalOptions {
         init_prompt: args.prompt.clone(),
