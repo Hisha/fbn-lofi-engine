@@ -1,4 +1,3 @@
-pub use audio_generation_backend::JobProcessor;
 pub use musicgen_job_processor::MusicGenJobProcessor;
 pub use server::*;
 
