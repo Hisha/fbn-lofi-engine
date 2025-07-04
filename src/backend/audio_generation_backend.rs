@@ -5,6 +5,8 @@ use std::time::Duration;
 
 use tokio_util::sync::CancellationToken;
 
+use crate::audio::AudioSamples;
+
 #[derive(Clone, Debug)]
 pub struct AudioGenerationRequest {
     pub id: String,
@@ -48,6 +50,18 @@ pub trait JobProcessor: Send + Sync {
         secs: usize,
         on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
     ) -> ort::Result<VecDeque<f32>>;
+
+    fn process_infinite(
+    &self,
+    prompt: &str,
+    total_secs: usize,
+    chunk_secs: usize,
+    overlap_secs: usize,
+    on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
+) -> ort::Result<VecDeque<f32>> {
+    // Default implementation: just fall back to regular `process`
+    self.process(prompt, total_secs, on_progress)
+}
 }
 
 #[derive(Clone)]
