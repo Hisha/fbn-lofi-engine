@@ -18,6 +18,7 @@ use crate::musicgen::{
 use crate::storage::Storage;
 use crate::storage_ext::StorageExt;
 
+#[derive(Clone)]
 pub struct MusicGenModels {
     text_encoder: MusicGenTextEncoder,
     decoder: Box<dyn MusicGenDecoder>,
