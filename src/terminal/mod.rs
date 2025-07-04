@@ -20,11 +20,12 @@ pub struct RunTerminalOptions {
     pub overlap: usize,
 }
 
-pub async fn run_terminal_loop<T: JobProcessor>(
+pub async fn run_terminal_loop(
     root: PathBuf,
-    processor: T,
     opts: RunTerminalOptions,
 ) -> anyhow::Result<()> {
+    let processor = MusicGenJobProcessor::default();
+    
     let secs_re = Regex::new("--secs[ =](\\d+)")?;
     let output_re = Regex::new(r"--output[ =]([.a-zA-Z_-]+)")?;
 
