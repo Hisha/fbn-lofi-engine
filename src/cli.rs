@@ -190,6 +190,7 @@ let audio_manager = AudioManager::default();
 let job_processor = MusicGenJobProcessor::new(Arc::new(musicgen_models));
 
 run_terminal_loop(
+    root,
     job_processor,
     RunTerminalOptions {
         init_prompt: args.prompt.clone(),
