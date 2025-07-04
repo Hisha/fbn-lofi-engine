@@ -40,6 +40,29 @@ pub async fn run_terminal_loop<T: JobProcessor>(
     let _ = rl.load_history(&root.join("history.txt"));
     let _ = rl.add_history_entry(&prompt);
 
+    if opts.infinite {
+    if opts.init_secs <= 30 {
+        println!(
+            "[WARNING] --infinite flag ignored: total duration ({}s) is too short.",
+            opts.init_secs
+        );
+    }
+
+    if opts.chunksize > 30 {
+        return Err(anyhow::anyhow!(
+            "Chunk size ({}) must be <= 30 seconds.",
+            opts.chunksize
+        ));
+    }
+
+    if opts.overlap >= opts.chunksize {
+        return Err(anyhow::anyhow!(
+            "Overlap ({}) must be less than chunk size ({}).",
+            opts.overlap, opts.chunksize
+        ));
+    }
+}
+
     loop {
         if prompt.is_empty() {
             prompt = match rl.readline(">>> ") {
