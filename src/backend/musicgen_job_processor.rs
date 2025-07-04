@@ -21,7 +21,7 @@ impl MusicGenJobProcessor {
         history: Option<&[f32]>,
     ) -> ort::Result<VecDeque<f32>> {
         // Delegate to model for actual inference, optionally using history for continuity
-        self.model.as_ref().generate_tokens(prompt, secs, history)
+        self.model.generate(prompt, secs, history)
     }
 
     /// Infinite chunked generation with overlap
