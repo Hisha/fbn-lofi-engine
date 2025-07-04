@@ -8,6 +8,7 @@ use std::str::FromStr;
 
 use crate::audio::{AudioManager, AudioStream};
 use crate::backend::musicgen_job_processor::MusicGenJobProcessor;
+use crate::backend::audio_generation_backend::JobProcessor;
 
 pub struct RunTerminalOptions {
     pub init_prompt: String,
@@ -20,7 +21,7 @@ pub struct RunTerminalOptions {
     pub overlap: usize,
 }
 
-pub async fn run_terminal_loop(
+pub async fn run_terminal_loop<T: JobProcessor>(
     processor: T,
     opts: RunTerminalOptions,
 ) -> anyhow::Result<()> {
