@@ -25,38 +25,51 @@ impl MusicGenJobProcessor {
     }
 
     /// Infinite chunked generation with overlap
-    pub fn process_infinite(
-        &self,
-        prompt: &str,
-        total_secs: usize,
-        chunksize: usize,
-        overlap: usize,
-        on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
-    ) -> ort::Result<VecDeque<f32>> {
-        let mut result = VecDeque::new();
-        let mut generated = 0;
+pub fn process_infinite(
+    &self,
+    prompt: &str,
+    total_secs: usize,
+    chunksize: usize,
+    overlap: usize,
+    on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
+) -> ort::Result<VecDeque<f32>> {
+    let mut result = VecDeque::new();
+    let mut generated = 0;
+    let mut history: Option<Vec<f32>> = None;
 
-        let mut history: Option<Vec<f32>> = None;
+    println!(
+        "Starting infinite generation: total={}s, chunk={}s, overlap={}s",
+        total_secs, chunksize, overlap
+    );
 
-        while generated < total_secs {
-            let seconds_left = total_secs - generated;
-            let current_chunk_secs = chunksize.min(seconds_left);
+    while generated < total_secs {
+        let seconds_left = total_secs - generated;
+        let current_chunk_secs = chunksize.min(seconds_left);
 
-            let chunk = self.generate_chunk(prompt, current_chunk_secs, history.as_deref())?;
-            let chunk_len = chunk.len();
+        println!(
+            "\nGenerating chunk: {}s ({}s remaining)...",
+            current_chunk_secs, seconds_left
+        );
 
-            // Update result, avoid duplicate overlap if present
-            if generated == 0 {
-                result.extend(chunk.clone());
-            } else {
-                let skip = overlap * 50; // assuming 50 samples per second
-                result.extend(chunk.iter().skip(skip));
-            }
+        let chunk = self.generate_chunk(prompt, current_chunk_secs, history.as_deref())?;
+        let chunk_len = chunk.len();
 
-            // Prepare overlap segment as history for next chunk
-            let overlap_len = overlap * 50;
-            let history_len = chunk_len.min(overlap_len);
-            history = Some(chunk
+        println!("Chunk generated: {} samples", chunk_len);
+
+        // Update result, avoid duplicate overlap
+        if generated == 0 {
+            result.extend(chunk.clone());
+        } else {
+            let skip = overlap * 50; // assuming 50 samples per second
+            println!("Skipping {} samples due to overlap", skip);
+            result.extend(chunk.iter().skip(skip));
+        }
+
+        // Prepare history for next chunk
+        let overlap_len = overlap * 50;
+        let history_len = chunk_len.min(overlap_len);
+        history = Some(
+            chunk
                 .iter()
                 .rev()
                 .take(history_len)
@@ -64,17 +77,24 @@ impl MusicGenJobProcessor {
                 .collect::<Vec<_>>()
                 .into_iter()
                 .rev()
-                .collect());
+                .collect(),
+        );
 
-            generated += current_chunk_secs;
-            let stop = on_progress(generated as f32, total_secs as f32);
-            if stop {
-                break;
-            }
+        generated += current_chunk_secs;
+
+        println!("Total generated so far: {}s", generated);
+
+        let stop = on_progress(generated as f32, total_secs as f32);
+        if stop {
+            println!("Stopping early due to on_progress callback.");
+            break;
         }
-
-        Ok(result)
     }
+
+    println!("\nFinished infinite generation: total length = {} samples", result.len());
+
+    Ok(result)
+}
 }
 
 impl JobProcessor for MusicGenJobProcessor {
