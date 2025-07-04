@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 use std::sync::Arc;
 
-use crate::backend::JobProcessor;
+use crate::backend::audio_generation_backend::JobProcessor;
 use crate::audio::AudioManager;
 use crate::musicgen_models::MusicGenModels;
 
