@@ -180,21 +180,26 @@ pub async fn cli() -> anyhow::Result<()> {
         )
         .await
     } else {
-        let job_processor = MusicGenJobProcessor::new(musicgen_models.clone(), audio_manager.clone());
+        use std::sync::Arc;
+use crate::audio::AudioManager;
+use crate::backend::musicgen_job_processor::MusicGenJobProcessor;
+
+let audio_manager = AudioManager::default();
+let job_processor = MusicGenJobProcessor::new(Arc::new(musicgen_models));
 
 run_terminal_loop(
     root,
     job_processor,
     RunTerminalOptions {
-        init_prompt: prompt,
-        init_secs: secs,
-        init_output: output,
-        no_playback,
-        no_interactive,
-        infinite,
-        chunksize,
-        overlap,
+        init_prompt: args.prompt.clone(),
+        init_secs: args.secs,
+        init_output: args.output.clone(),
+        no_playback: args.no_playback,
+        no_interactive: args.no_interactive,
+        infinite: args.infinite,
+        chunksize: args.chunksize,
+        overlap: args.overlap,
     },
-).await?;
+).await
     }
 }
