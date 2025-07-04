@@ -8,6 +8,7 @@ use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::time::Duration;
 use tokenizers::Tokenizer;
+use anyhow::Result;
 
 use crate::backend::audio_generation_backend::JobProcessor;
 use crate::cli::{Model, INPUT_IDS_BATCH_PER_SECOND};
@@ -27,6 +28,25 @@ pub struct MusicGenModels {
 impl MusicGenModels {
     pub fn encode_text(&self, text: &str) -> ort::Result<(DynValue, DynValue)> {
         self.text_encoder.encode(text)
+    }
+
+    pub fn generate(
+        &self,
+        prompt: &str,
+        secs: usize,
+        _history: Option<&[f32]>,
+    ) -> Result<VecDeque<f32>> {
+        let max_len = secs * INPUT_IDS_BATCH_PER_SECOND;
+
+        let (lhs, am) = self.encode_text(prompt)?;
+        let token_stream = self.generate_tokens(lhs, am, max_len)?;
+
+        let mut data = VecDeque::new();
+        while let Ok(tokens) = token_stream.recv() {
+            data.push_back(tokens?);
+        }
+
+        Ok(self.encode_audio(data)?)
     }
 
     pub fn generate_tokens(
