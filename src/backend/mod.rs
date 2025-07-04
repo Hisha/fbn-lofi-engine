@@ -3,7 +3,7 @@ pub use server::*;
 
 #[cfg(test)]
 mod _test_utils;
-mod audio_generation_backend;
+pub mod audio_generation_backend;
 mod audio_generation_fanout;
 mod music_gpt_chat;
 mod music_gpt_ws_handler;
