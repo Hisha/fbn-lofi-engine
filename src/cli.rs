@@ -82,6 +82,18 @@ struct Args {
     #[arg(long, default_value = "musicgpt-generated.wav")]
     output: String,
 
+    /// [CLI mode] Enable infinite generation mode.
+    #[arg(long, default_value = "false")]
+    infinite: bool,
+
+    /// [CLI mode] Duration (in sec) per chunk.
+    #[arg(long, default_value = "30")]
+    chunksize: usize,
+
+    /// [CLI mode] Seconds to overlap from previous chunk.
+    #[arg(long, default_value = "10")]
+    overlap: usize,
+
     /// [CLI mode] Do not play the audio automatically after inference.
     #[arg(long, default_value = "false")]
     no_playback: bool,
