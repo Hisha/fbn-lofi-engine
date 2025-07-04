@@ -1,4 +1,5 @@
 pub use audio_generation_backend::JobProcessor;
+pub use musicgen_job_processor::MusicGenJobProcessor;
 pub use server::*;
 
 #[cfg(test)]
@@ -7,6 +8,7 @@ mod audio_generation_backend;
 mod audio_generation_fanout;
 mod music_gpt_chat;
 mod music_gpt_ws_handler;
+mod musicgen_job_processor;
 mod server;
 mod ws_handler;
 
