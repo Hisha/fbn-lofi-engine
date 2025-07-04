@@ -15,6 +15,9 @@ pub struct RunTerminalOptions {
     pub init_output: String,
     pub no_playback: bool,
     pub no_interactive: bool,
+    pub infinite: bool,
+    pub chunksize: usize,
+    pub overlap: usize,
 }
 
 pub async fn run_terminal_loop<T: JobProcessor>(
@@ -26,8 +29,6 @@ pub async fn run_terminal_loop<T: JobProcessor>(
     let output_re = Regex::new(r"--output[ =]([.a-zA-Z_-]+)")?;
 
     let audio_player = AudioManager::default();
-    // This variable holds the audio stream. The stream stops when this is dropped,
-    // so we need to maintain it referenced here.
     #[allow(unused_variables)]
     let mut curr_stream: Option<AudioStream> = None;
     let mut prompt = opts.init_prompt;
@@ -37,6 +38,7 @@ pub async fn run_terminal_loop<T: JobProcessor>(
     let mut rl = DefaultEditor::new()?;
     let _ = rl.load_history(&root.join("history.txt"));
     let _ = rl.add_history_entry(&prompt);
+
     loop {
         if prompt.is_empty() {
             prompt = match rl.readline(">>> ") {
@@ -48,9 +50,11 @@ pub async fn run_terminal_loop<T: JobProcessor>(
             secs = capture(&secs_re, &prompt).unwrap_or(secs);
             output = capture(&output_re, &prompt).unwrap_or(output);
         }
+
         if prompt.is_empty() {
             continue;
         }
+
         let _ = rl.add_history_entry(&prompt);
 
         if prompt == "exit" {
@@ -58,17 +62,31 @@ pub async fn run_terminal_loop<T: JobProcessor>(
         }
 
         let bar = fixed_bar("Generating audio", 1);
-        let samples = processor.process(
-            &prompt,
-            secs,
-            Box::new(move |elapsed, total| {
-                bar.set_length(total as u64);
-                bar.set_position(elapsed as u64);
-                false
-            }),
-        )?;
 
-        // Last, play the audio.
+        let samples = if opts.infinite {
+            processor.process_infinite(
+                &prompt,
+                secs,
+                opts.chunksize,
+                opts.overlap,
+                Box::new(move |elapsed, total| {
+                    bar.set_length(total as u64);
+                    bar.set_position(elapsed as u64);
+                    false
+                }),
+            )?
+        } else {
+            processor.process(
+                &prompt,
+                secs,
+                Box::new(move |elapsed, total| {
+                    bar.set_length(total as u64);
+                    bar.set_position(elapsed as u64);
+                    false
+                }),
+            )?
+        };
+
         if !opts.no_playback {
             let samples_copy = samples.clone();
             let stream = audio_player.play_from_queue(samples_copy);
@@ -77,9 +95,11 @@ pub async fn run_terminal_loop<T: JobProcessor>(
                 curr_stream = Some(stream);
             }
         }
+
         if !output.ends_with(".wav") {
             output += ".wav";
         }
+
         let bytes = audio_player.to_wav(samples)?;
         tokio::fs::write(&output, bytes).await?;
 
