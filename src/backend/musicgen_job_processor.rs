@@ -109,4 +109,15 @@ impl JobProcessor for MusicGenJobProcessor {
             samples
         })
     }
+
+    fn process_infinite(
+        &self,
+        prompt: &str,
+        total_secs: usize,
+        chunksize: usize,
+        overlap: usize,
+        on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
+    ) -> ort::Result<VecDeque<f32>> {
+        self.process_infinite(prompt, total_secs, chunksize, overlap, on_progress)
+    }
 }
