@@ -8,7 +8,7 @@ use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::time::Duration;
 use tokenizers::Tokenizer;
-use anyhow::Result;
+use ort::Result;
 
 use crate::backend::audio_generation_backend::JobProcessor;
 use crate::cli::{Model, INPUT_IDS_BATCH_PER_SECOND};
@@ -31,23 +31,23 @@ impl MusicGenModels {
     }
 
     pub fn generate(
-        &self,
-        prompt: &str,
-        secs: usize,
-        _history: Option<&[f32]>,
-    ) -> Result<VecDeque<f32>> {
-        let max_len = secs * INPUT_IDS_BATCH_PER_SECOND;
+    &self,
+    prompt: &str,
+    secs: usize,
+    _history: Option<&[f32]>,
+) -> ort::Result<VecDeque<f32>> {
+    let max_len = secs * INPUT_IDS_BATCH_PER_SECOND;
 
-        let (lhs, am) = self.encode_text(prompt)?;
-        let token_stream = self.generate_tokens(lhs, am, max_len)?;
+    let (lhs, am) = self.encode_text(prompt)?;
+    let token_stream = self.generate_tokens(lhs, am, max_len)?;
 
-        let mut data = VecDeque::new();
-        while let Ok(tokens) = token_stream.recv() {
-            data.push_back(tokens?);
-        }
-
-        Ok(self.encode_audio(data)?)
+    let mut data = VecDeque::new();
+    while let Ok(tokens) = token_stream.recv() {
+        data.push_back(tokens?);
     }
+
+    self.encode_audio(data)
+}
 
     pub fn generate_tokens(
         &self,
