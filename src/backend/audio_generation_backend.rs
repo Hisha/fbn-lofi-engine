@@ -57,7 +57,7 @@ pub trait JobProcessor: Send + Sync {
         overlap: usize,
         on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
     ) -> ort::Result<VecDeque<f32>> {
-        Err(ort::Error::Msg("Infinite generation not implemented".into()))
+        Err(ort::Error::new("Infinite generation not implemented"))
     }
 }
 
