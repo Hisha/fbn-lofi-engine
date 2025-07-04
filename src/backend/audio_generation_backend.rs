@@ -5,8 +5,6 @@ use std::time::Duration;
 
 use tokio_util::sync::CancellationToken;
 
-use crate::audio::AudioSamples;
-
 #[derive(Clone, Debug)]
 pub struct AudioGenerationRequest {
     pub id: String,
