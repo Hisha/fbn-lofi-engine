@@ -24,8 +24,6 @@ pub async fn run_terminal_loop(
     processor: T,
     opts: RunTerminalOptions,
 ) -> anyhow::Result<()> {
-    let processor = MusicGenJobProcessor::default();
-    
     let secs_re = Regex::new("--secs[ =](\\d+)")?;
     let output_re = Regex::new(r"--output[ =]([.a-zA-Z_-]+)")?;
 
