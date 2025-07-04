@@ -39,7 +39,7 @@ impl Display for Model {
 }
 
 #[derive(Parser)]
-#[command(name = "MusicGPT")]
+#[command(name = "FBN LoFi Engine")]
 #[command(version, about, long_about = None)]
 struct Args {
     /// The prompt for the LLM.
