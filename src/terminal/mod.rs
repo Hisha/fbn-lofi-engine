@@ -22,6 +22,7 @@ pub struct RunTerminalOptions {
 }
 
 pub async fn run_terminal_loop<T: JobProcessor>(
+    root: PathBuf,
     processor: T,
     opts: RunTerminalOptions,
 ) -> anyhow::Result<()> {
