@@ -4,6 +4,7 @@ use directories::ProjectDirs;
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 use tracing::warn;
+use std::sync::Arc;
 
 use crate::backend::*;
 use crate::onnxruntime_lib;
