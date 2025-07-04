@@ -21,7 +21,7 @@ pub struct RunTerminalOptions {
 }
 
 pub async fn run_terminal_loop(
-    root: PathBuf,
+    processor: T,
     opts: RunTerminalOptions,
 ) -> anyhow::Result<()> {
     let processor = MusicGenJobProcessor::default();
