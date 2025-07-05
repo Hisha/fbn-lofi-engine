@@ -74,7 +74,7 @@ impl AudioManager {
     }
 
     pub fn to_wav(&self, v: VecDeque<f32>) -> hound::Result<Vec<u8>> {
-        println!("Writing {} samples to WAV file", samples.len());
+        println!("Writing {} samples to WAV file", v.len());
         
         let spec = hound::WavSpec {
             channels: self.n_channels,
