@@ -8,7 +8,6 @@ use std::sync::mpsc::Receiver;
 use std::sync::Arc;
 use std::time::Duration;
 use tokenizers::Tokenizer;
-use ort::Result;
 
 use crate::backend::audio_generation_backend::JobProcessor;
 use crate::cli::{Model, INPUT_IDS_BATCH_PER_SECOND};
