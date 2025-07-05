@@ -121,9 +121,6 @@ impl Args {
         if self.secs < 1 {
             return Err(anyhow!("--secs must > 0"));
         }
-        //if self.secs > 30 {
-        //    return Err(anyhow!("--secs must <= 30"));
-        //}
         if self.no_interactive && self.prompt.is_empty() {
             return Err(anyhow!(
                 "A prompt must be provided when not in interactive mode"
@@ -186,7 +183,7 @@ run_web_server(
 use crate::audio::AudioManager;
 use crate::backend::musicgen_job_processor::MusicGenJobProcessor;
 
-let audio_manager = AudioManager::default();
+let _audio_manager = AudioManager::default();
 let job_processor = MusicGenJobProcessor::new(Arc::new(musicgen_models));
 
 if args.infinite {
