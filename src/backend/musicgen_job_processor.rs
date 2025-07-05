@@ -24,7 +24,7 @@ impl MusicGenJobProcessor {
         self.model.generate(prompt, secs, history)
     }
 
-    /// Infinite chunked generation with overlap
+    /// Infinite chunked generation with crossfade overlap
 pub fn process_infinite(
     &self,
     prompt: &str,
@@ -42,6 +42,9 @@ pub fn process_infinite(
         total_secs, chunksize, overlap
     );
 
+    let sample_rate = 32000;
+    let overlap_samples = overlap * sample_rate;
+
     while generated < total_secs {
         let seconds_left = total_secs - generated;
         let current_chunk_secs = chunksize.min(seconds_left);
@@ -56,18 +59,34 @@ pub fn process_infinite(
 
         println!("Chunk generated: {} samples", chunk_len);
 
-        // Update result, avoid duplicate overlap
-        if generated == 0 {
+        if result.is_empty() {
+            // First chunk
             result.extend(chunk.clone());
         } else {
-            let skip = overlap * 50; // assuming 50 samples per second
-            println!("Skipping {} samples due to overlap", skip);
-            result.extend(chunk.iter().skip(skip));
+            // Crossfade last N samples from result with first N from chunk
+            let tail_len = overlap_samples.min(result.len()).min(chunk_len);
+            if tail_len > 0 {
+                let fade_out: Vec<f32> = result
+                    .drain((result.len() - tail_len)..)
+                    .collect();
+
+                let fade_in: Vec<f32> = chunk.iter().take(tail_len).cloned().collect();
+
+                for i in 0..tail_len {
+                    let t = i as f32 / tail_len as f32;
+                    let blended = fade_out[i] * (1.0 - t) + fade_in[i] * t;
+                    result.push_back(blended);
+                }
+
+                // Append rest of new chunk (excluding fade-in part)
+                result.extend(chunk.iter().skip(tail_len));
+            } else {
+                result.extend(chunk.iter());
+            }
         }
 
-        // Prepare history for next chunk
-        let overlap_len = overlap * 50;
-        let history_len = chunk_len.min(overlap_len);
+        // Prepare overlap history for continuity (optional, based on model behavior)
+        let history_len = chunk_len.min(overlap_samples);
         history = Some(
             chunk
                 .iter()
@@ -84,17 +103,18 @@ pub fn process_infinite(
 
         println!("Total generated so far: {}s", generated);
 
-        let stop = on_progress(generated as f32, total_secs as f32);
-        if stop {
+        if on_progress(generated as f32, total_secs as f32) {
             println!("Stopping early due to on_progress callback.");
             break;
         }
     }
 
-    println!("\nFinished infinite generation: total length = {} samples", result.len());
+    println!(
+        "\nFinished infinite generation: total length = {} samples",
+        result.len()
+    );
 
     Ok(result)
-}
 }
 
 impl JobProcessor for MusicGenJobProcessor {
