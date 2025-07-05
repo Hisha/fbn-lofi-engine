@@ -116,7 +116,7 @@ pub fn process_infinite(
 
     Ok(result)
 }
-
+}
 impl JobProcessor for MusicGenJobProcessor {
     fn process(
         &self,
