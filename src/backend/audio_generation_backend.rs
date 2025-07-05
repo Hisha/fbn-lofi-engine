@@ -51,11 +51,11 @@ pub trait JobProcessor: Send + Sync {
 
     fn process_infinite(
         &self,
-        prompt: &str,
-        total_secs: usize,
-        chunksize: usize,
-        overlap: usize,
-        on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
+        _prompt: &str,
+        _total_secs: usize,
+        _chunksize: usize,
+        _overlap: usize,
+        _on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
     ) -> ort::Result<VecDeque<f32>> {
         Err(ort::Error::new("Infinite generation not implemented"))
     }
