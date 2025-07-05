@@ -124,7 +124,7 @@ impl JobProcessor for MusicGenJobProcessor {
         secs: usize,
         on_progress: Box<dyn Fn(f32, f32) -> bool + Sync + Send + 'static>,
     ) -> ort::Result<VecDeque<f32>> {
-        self.generate_chunk(prompt, secs, None).map(|mut samples| {
+        self.generate_chunk(prompt, secs, None).map(|samples| {
             let _ = on_progress(secs as f32, secs as f32);
             samples
         })
