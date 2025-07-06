@@ -80,7 +80,6 @@ impl AudioGenerationBackend {
     fn job_processing_loop(self, outbound_tx: Sender<BackendOutboundMsg>) {
         loop {
             let front = {
-                // Immediately drop jq so that the lock is released.
                 let jq = self.job_queue.read().unwrap();
                 jq.front().cloned()
             };
@@ -141,11 +140,9 @@ impl AudioGenerationBackend {
         let (inbound_tx, inbound_rx) = channel::<BackendInboundMsg>();
         let (outbound_tx, outbound_rx) = channel::<BackendOutboundMsg>();
 
-        // Job processing loop.
         let self_clone = self.clone();
         std::thread::spawn(move || self_clone.job_processing_loop(outbound_tx));
 
-        // Communications processing loop.
         std::thread::spawn(move || self.msg_processing_loop(inbound_rx));
 
         (inbound_tx, outbound_rx)
@@ -208,7 +205,6 @@ mod tests {
     }
 
     #[tokio::test]
-    // TODO: for some reason this test fails in CI with a timeout.
     #[cfg(not(target_os = "macos"))]
     async fn handles_job_cancellation() -> anyhow::Result<()> {
         let backend =
