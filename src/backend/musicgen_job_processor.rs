@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use std::sync::Arc;
+use std::f32::consts::PI;
 
 use crate::backend::audio_generation_backend::JobProcessor;
 use crate::musicgen_models::MusicGenModels;
@@ -74,7 +75,9 @@ pub fn process_infinite(
 
                 for i in 0..tail_len {
                     let t = i as f32 / tail_len as f32;
-                    let blended = fade_out[i] * (1.0 - t) + fade_in[i] * t;
+                    let fade_out_weight = ((1.0 + (PI * t).cos()) / 2.0).powf(1.5); // smooth out
+                    let fade_in_weight = 1.0 - fade_out_weight;
+                    let blended = fade_out[i] * fade_out_weight + fade_in[i] * fade_in_weight;
                     result.push_back(blended);
                 }
 
